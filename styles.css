@@ -1,0 +1,410 @@
+/* ==========================================================================
+   1. CSS Variables & Reset
+   ========================================================================== */
+:root {
+    --color-primary: #007bff;
+    --color-primary-hover: #0056b3;
+    --color-secondary: #6c757d;
+    --color-secondary-hover: #545b62;
+    --color-success: #28a745;
+    --color-danger: #dc3545;
+    --color-light: #f8f9fa;
+    --color-dark: #343a40;
+    --color-text: #212529;
+    --color-muted: #6c757d;
+    --color-background: #fff;
+    --color-border: #dee2e6;
+
+    --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-size-base: 1rem;
+    --line-height-base: 1.5;
+    
+    --spacing-unit: 1rem;
+    --border-radius: 0.375rem;
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition-speed: 0.2s;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+    color: var(--color-text);
+    background-color: var(--color-light);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* ==========================================================================
+   2. Layout & Helpers
+   ========================================================================== */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--spacing-unit);
+    padding-right: var(--spacing-unit);
+}
+
+main {
+    flex-grow: 1;
+    padding-top: calc(var(--spacing-unit) * 2);
+    padding-bottom: calc(var(--spacing-unit) * 2);
+}
+
+.hidden {
+    display: none !important;
+}
+
+.info-notice {
+    background-color: #e9ecef;
+    border-left: 4px solid var(--color-primary);
+    padding: var(--spacing-unit);
+    margin-bottom: calc(var(--spacing-unit) * 1.5);
+    border-radius: var(--border-radius);
+}
+
+h2 {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    margin-bottom: var(--spacing-unit);
+    color: var(--color-dark);
+}
+
+/* ==========================================================================
+   3. Header & Navigation
+   ========================================================================== */
+.site-header {
+    background-color: var(--color-background);
+    padding: var(--spacing-unit) 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.site-header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.main-nav ul {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-unit);
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--color-muted);
+    font-weight: 500;
+    padding: 0.5rem;
+    border-bottom: 2px solid transparent;
+    transition: color var(--transition-speed) ease, border-color var(--transition-speed) ease;
+}
+
+.nav-link:hover, .nav-link:focus {
+    color: var(--color-primary);
+}
+
+.nav-link.active {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+}
+
+#user-info-container {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-unit);
+}
+
+#user-email {
+    font-size: 0.9rem;
+    color: var(--color-muted);
+}
+
+/* ==========================================================================
+   4. Buttons
+   ========================================================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    text-align: center;
+    border: 1px solid transparent;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all var(--transition-speed) ease;
+    text-decoration: none;
+    line-height: 1;
+}
+
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.btn-primary:not(:disabled):hover {
+    background-color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+}
+
+.btn-secondary {
+    color: #fff;
+    background-color: var(--color-secondary);
+    border-color: var(--color-secondary);
+}
+
+.btn-secondary:not(:disabled):hover {
+    background-color: var(--color-secondary-hover);
+    border-color: var(--color-secondary-hover);
+}
+
+/* ==========================================================================
+   5. Product Catalog
+   ========================================================================== */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: calc(var(--spacing-unit) * 1.5);
+}
+
+.product-card {
+    background-color: var(--color-background);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.product-card__image {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+}
+
+.product-card__content {
+    padding: var(--spacing-unit);
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card__title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--color-dark);
+}
+
+.product-card__description {
+    font-size: 0.9rem;
+    color: var(--color-muted);
+    margin-bottom: var(--spacing-unit);
+    flex-grow: 1;
+}
+
+.product-card__actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: auto;
+}
+
+.product-card__actions .btn {
+    flex: 1;
+}
+
+/* ==========================================================================
+   6. Coupon List
+   ========================================================================== */
+.coupon-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-unit);
+}
+.coupon-item {
+    background-color: var(--color-background);
+    padding: var(--spacing-unit);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+}
+.coupon-item a {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    text-decoration: none;
+}
+.coupon-item a:hover {
+    text-decoration: underline;
+}
+.coupon-item p {
+    margin-top: 0.5rem;
+    color: var(--color-muted);
+}
+
+/* ==========================================================================
+   7. Authentication Forms
+   ========================================================================== */
+.auth-container {
+    max-width: 450px;
+    margin: 0 auto;
+    padding: calc(var(--spacing-unit) * 2);
+    background-color: var(--color-background);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.auth-form h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+.auth-form .btn {
+    width: 100%;
+}
+
+.auth-toggle {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.auth-toggle a {
+    color: var(--color-primary);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.auth-toggle a:hover {
+    text-decoration: underline;
+}
+
+.error-message {
+    color: var(--color-danger);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+/* ==========================================================================
+   8. Toast Notifications
+   ========================================================================== */
+#toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translate(-50%, 200%);
+    padding: 1rem 1.5rem;
+    border-radius: var(--border-radius);
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease-in-out;
+    z-index: 2000;
+}
+
+#toast.show {
+    transform: translate(-50%, 0);
+}
+
+#toast.success {
+    background-color: var(--color-success);
+}
+
+#toast.error {
+    background-color: var(--color-danger);
+}
+
+/* ==========================================================================
+   9. Spinner
+   ========================================================================== */
+.spinner {
+    width: 1em;
+    height: 1em;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   10. Footer
+   ========================================================================== */
+.site-footer {
+    background-color: var(--color-dark);
+    color: var(--color-light);
+    padding: calc(var(--spacing-unit) * 1.5) 0;
+    text-align: center;
+    margin-top: auto;
+}
+
+.site-footer p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.catalog-intro {
+    margin-bottom: 2rem; /* Isso adiciona um espaço abaixo do parágrafo */
+}
