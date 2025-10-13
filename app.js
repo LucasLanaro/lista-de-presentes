@@ -389,6 +389,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!item) return;
 
+        // --- MUDANÇA PRINCIPAL COMEÇA AQUI ---
+
+        // 1. Abre uma nova aba em branco IMEDIATAMENTE.
+        // O navegador permite isso porque é uma resposta direta ao clique.
+        const newTab = window.open('', '_blank');
+        newTab.document.write('Aguarde um momento, estamos registrando sua reserva...');
+
         const originalButtonText = button.innerHTML;
         setButtonLoading(button, true);
 
@@ -403,38 +410,39 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            // A chamada fetch foi ajustada para contornar o problema de CORS do Apps Script.
-            // Usamos o modo 'no-cors', que envia os dados mas não lê a resposta.
+            // 2. Faz a chamada para a planilha (a parte demorada)
             await fetch(GAS_ENDPOINT, {
                 method: 'POST',
-                mode: 'no-cors', // <-- MUDANÇA CRUCIAL
+                mode: 'no-cors',
                 cache: 'no-cache',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
                 redirect: 'follow'
             });
 
-            // Como não podemos ler a resposta em 'no-cors', assumimos o sucesso
-            // e atualizamos a interface do usuário imediatamente.
+            // 3. Se a reserva deu certo, atualiza a página original...
             showToast('Presente reservado com sucesso!', 'success');
             saveUserReservation(currentUser.uid, item.id);
             userReservations[item.id] = true;
             button.textContent = 'Reservado por você';
             button.disabled = true;
-            window.open(item.buyUrl, '_blank');
+
+            // ...e AGORA redireciona a aba que já estava aberta.
+            newTab.location.href = item.buyUrl;
 
         } catch (error) {
-            // Este bloco de 'catch' agora só pegará erros de rede (ex: sem internet).
-            console.error('Erro de rede ao tentar reservar:', error);
-            showToast('Erro ao registrar a reserva. Verifique sua conexão.', 'error');
+            // 4. Se deu erro, avisa o usuário na página original...
+            console.error('Erro ao reservar:', error);
+            showToast('Erro ao registrar a reserva. Tente novamente.', 'error');
+            
+            // ...e fecha a aba em branco que foi aberta.
+            newTab.close();
         } finally {
             setButtonLoading(button, false, 'Reservado por você');
             if (button.disabled) {
-                // Manter o texto e estado de sucesso
+                // Manter o texto de sucesso
             } else {
-                button.innerHTML = originalButtonText; // restaurar texto original em caso de falha de rede
+                button.innerHTML = originalButtonText; // restaurar texto original em caso de falha
             }
         }
     }
