@@ -374,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================================================
     // Lógica de Reserva
     // ==========================================================================
-    async function reserveItem(event) {
+    function reserveItem(event) {
         if (!event.target.matches('.btn-reserve')) return;
 
         if (!currentUser) {
@@ -389,13 +389,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!item) return;
 
-        // --- MUDANÇA PRINCIPAL COMEÇA AQUI ---
-
-        // 1. Abre uma nova aba em branco IMEDIATAMENTE.
-        // O navegador permite isso porque é uma resposta direta ao clique.
+        // --- MUDANÇA ESTRUTURAL CRÍTICA ---
+        // 1. ABRIR A ABA DE FORMA 100% SÍNCRONA
         const newTab = window.open('', '_blank');
+        
+        // 1a. Verifica se o pop-up foi bloqueado
+        if (!newTab || newTab.closed || typeof newTab.closed == 'undefined') {
+            alert('Seu navegador bloqueou a abertura da nova aba.\n\nPor favor, desative o bloqueador de pop-ups para este site e tente novamente.');
+            return; // Para a execução
+        }
+        
         newTab.document.write('Aguarde um momento, estamos registrando sua reserva...');
 
+        // 2. CHAMA UMA NOVA FUNÇÃO ASYNC PARA FAZER O TRABALHO PESADO
+        // Passamos os dados necessários para ela continuar o processo.
+        processReservation(item, button, newTab);
+    }
+
+    // ESTA É A NOVA FUNÇÃO QUE FAZ O TRABALHO ASSÍNCRONO
+    async function processReservation(item, button, newTab) {
         const originalButtonText = button.innerHTML;
         setButtonLoading(button, true);
 
@@ -410,7 +422,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            // 2. Faz a chamada para a planilha (a parte demorada)
             await fetch(GAS_ENDPOINT, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -420,18 +431,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 redirect: 'follow'
             });
 
-            // 3. Se a reserva deu certo, atualiza a página original...
+            // Se a reserva deu certo, atualiza a página original...
             showToast('Presente reservado com sucesso!', 'success');
             saveUserReservation(currentUser.uid, item.id);
             userReservations[item.id] = true;
             button.textContent = 'Reservado por você';
             button.disabled = true;
 
-            // ...e AGORA redireciona a aba que já estava aberta.
+            // ...e redireciona a aba que já estava aberta.
             newTab.location.href = item.buyUrl;
 
         } catch (error) {
-            // 4. Se deu erro, avisa o usuário na página original...
+            // Se deu erro, avisa o usuário na página original...
             console.error('Erro ao reservar:', error);
             showToast('Erro ao registrar a reserva. Tente novamente.', 'error');
             
@@ -439,10 +450,8 @@ document.addEventListener('DOMContentLoaded', () => {
             newTab.close();
         } finally {
             setButtonLoading(button, false, 'Reservado por você');
-            if (button.disabled) {
-                // Manter o texto de sucesso
-            } else {
-                button.innerHTML = originalButtonText; // restaurar texto original em caso de falha
+            if (!button.disabled) {
+                button.innerHTML = originalButtonText;
             }
         }
     }
