@@ -103,6 +103,12 @@ h2 {
     text-decoration: none;
 }
 
+.logo img {
+    height: 70px; /* <-- AJUSTE ESTE VALOR para o tamanho desejado */
+    width: auto;  /* Mantém a proporção correta da imagem */
+    display: block; /* Ajuda a remover espaços indesejados abaixo da imagem */
+}
+
 .main-nav ul {
     list-style: none;
     display: flex;
@@ -407,4 +413,57 @@ h2 {
 
 .catalog-intro {
     margin-bottom: 2rem; /* Isso adiciona um espaço abaixo do parágrafo */
+}
+
+/* Estilos para o botão Google e o separador */
+
+.separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: var(--color-muted);
+    margin: 1.5rem 0;
+}
+
+.separator::before,
+.separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.separator:not(:empty)::before {
+    margin-right: 0.5em;
+}
+
+.separator:not(:empty)::after {
+    margin-left: 0.5em;
+}
+
+.btn-google {
+    background-color: #fff;
+    color: var(--color-dark);
+    border-color: var(--color-border);
+    width: 100%;
+    font-weight: 500;
+}
+
+.btn-google:hover {
+    background-color: var(--color-light);
+}
+
+.btn-google svg {
+    margin-right: 0.5rem;
+}
+
+/* Estilo para o botão de cancelar reserva */
+.btn-cancel {
+    background-color: transparent;
+    color: var(--color-secondary);
+    border: 1px solid var(--color-secondary);
+}
+
+.btn-cancel:hover {
+    background-color: var(--color-secondary);
+    color: #fff;
 }

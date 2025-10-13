@@ -5,17 +5,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================================================
     
     // TODO: Substitua pela URL do seu endpoint do Google Apps Script
-    const GAS_ENDPOINT = 'https://script.google.com/macros/s/SEU_ID/exec';
+    const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbznyEyoJMLyqPfSNm3Gf2o-kTi_6OO3PcZW2I70sGRnCCsxPQDCZHK6dzTlpwP0KPrsZQ/exec';
 
     // TODO: Preencha com suas credenciais do Firebase
     const FIREBASE_CONFIG = {
-        apiKey: "AIza...",
-        authDomain: "seu-projeto.firebaseapp.com",
-        projectId: "seu-projeto",
-        storageBucket: "seu-projeto.appspot.com",
-        messagingSenderId: "...",
-        appId: "..."
-    };
+        apiKey: "AIzaSyC2VVJMWJ9RoCKMGzJeiOLx-v07R_tF1O0",
+        authDomain: "lista-cha-casa.firebaseapp.com",
+        projectId: "lista-cha-casa",
+        storageBucket: "lista-cha-casa.firebasestorage.app",
+        messagingSenderId: "188253353925",
+        appId: "1:188253353925:web:2514dbf33404c2b838bdac"
+        };
     
     // Array de produtos para o catálogo (fácil de editar)
     const PRODUCTS = [
@@ -248,25 +248,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Array de cupons/links úteis
     const COUPONS = [
         {
-            title: 'Cupons Eletrônicos',
-            url: 'https://exemplo.com/eletronicos',
-            description: 'Descontos especiais em uma variedade de produtos eletrônicos e eletrodomésticos.'
+            title: 'TALK OFERTAS GERAIS',
+            url: 'https://chat.whatsapp.com/BsLuRUkNnor2kHF5etluXJ',
+            description: 'Descontos especiais em uma variedade de produtos eletrônicos e gerais.'
         },
         {
-            title: 'Achados Casa & Cozinha',
-            url: 'https://exemplo.com/casa-cozinha',
-            description: 'Ofertas selecionadas para decorar e equipar sua casa com estilo e funcionalidade.'
+            title: 'Grupo de Ofertas - Talk PC',
+            url: 'https://chat.whatsapp.com/LmuhlSfuzkTIe49YhZjkXe',
+            description: 'Descontos especiais em uma variedade de produtos eletrônicos e de computadores.'
         },
-        {
-            title: 'Ofertas Cama & Banho',
-            url: 'https://exemplo.com/cama-banho',
-            description: 'Encontre aqui os melhores preços em jogos de cama, toalhas e itens de decoração para o quarto.'
-        },
-        {
-            title: 'Descontos MarketPlace X',
-            url: 'https://exemplo.com/marketplace-x',
-            description: 'Aproveite os cupons de um dos maiores marketplaces para comprar de tudo um pouco.'
-        }
     ];
 
 
@@ -291,6 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentUser = null;
     let userReservations = {};
+    let allReservedItems = new Set();
 
     // ==========================================================================
     // Roteamento (SPA)
@@ -327,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         PRODUCTS.forEach(product => {
             const isReservedByCurrentUser = userReservations[product.id];
-            const isReserved = false; // TODO: Poderia vir de uma fonte de dados pública se houvesse
+            const isReservedByAnother = !isReservedByCurrentUser && allReservedItems.has(product.id);
 
             const card = document.createElement('div');
             card.className = 'product-card';
@@ -337,18 +328,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h3 class="product-card__title">${product.name}</h3>
                     <p class="product-card__description">${product.description}</p>
                     <div class="product-card__actions">
-                        <a href="${product.buyUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">Ver Loja</a>
-                        <button 
-                            class="btn btn-primary btn-reserve" 
-                            data-id="${product.id}"
-                            ${isReservedByCurrentUser || isReserved ? 'disabled' : ''}>
-                            ${isReservedByCurrentUser ? 'Reservado por você' : 'Reservar'}
-                        </button>
+                        ${isReservedByCurrentUser
+                            ? `<button class="btn btn-secondary btn-cancel" data-id="${product.id}">Cancelar Reserva</button>`
+                        : isReservedByAnother
+                            ? `<button class="btn btn-primary" data-id="${product.id}" disabled>Reservado por outra pessoa</button>`
+                        : `<button class="btn btn-primary btn-reserve" data-id="${product.id}">Reservar e ver na loja</button>`
+                        }
                     </div>
                 </div>
             `;
             productGrid.appendChild(card);
         });
+    }
+
+    async function fetchAllReservations() {
+        try {
+            const response = await fetch(GAS_ENDPOINT); // Uma chamada GET simples
+            if (!response.ok) {
+                throw new Error('Falha ao buscar lista de reservas.');
+            }
+            const reservedIds = await response.json();
+            allReservedItems = new Set(reservedIds); // Armazena os IDs no nosso Set
+        } catch (error) {
+            console.error("Não foi possível carregar os itens reservados:", error);
+            // O site ainda funcionará, mas não bloqueará itens já reservados
+        }
     }
 
     function renderCoupons() {
@@ -397,35 +401,39 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const response = await fetch(GAS_ENDPOINT, {
+            // A chamada fetch foi ajustada para contornar o problema de CORS do Apps Script.
+            // Usamos o modo 'no-cors', que envia os dados mas não lê a resposta.
+            await fetch(GAS_ENDPOINT, {
                 method: 'POST',
-                mode: 'cors',
+                mode: 'no-cors', // <-- MUDANÇA CRUCIAL
                 cache: 'no-cache',
-                credentials: 'omit', // CORS exige isso
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload),
+                redirect: 'follow'
             });
 
-            if (!response.ok) {
-                throw new Error('Falha ao comunicar com o servidor de registro.');
-            }
-            
+            // Como não podemos ler a resposta em 'no-cors', assumimos o sucesso
+            // e atualizamos a interface do usuário imediatamente.
             showToast('Presente reservado com sucesso!', 'success');
             saveUserReservation(currentUser.uid, item.id);
             userReservations[item.id] = true;
             button.textContent = 'Reservado por você';
             button.disabled = true;
+            window.open(item.buyUrl, '_blank');
 
         } catch (error) {
-            console.error('Erro ao reservar:', error);
-            showToast('Erro ao registrar a reserva. Tente novamente.', 'error');
+            // Este bloco de 'catch' agora só pegará erros de rede (ex: sem internet).
+            console.error('Erro de rede ao tentar reservar:', error);
+            showToast('Erro ao registrar a reserva. Verifique sua conexão.', 'error');
         } finally {
             setButtonLoading(button, false, 'Reservado por você');
-             if(button.disabled) {
-                // Manter o texto de sucesso
-             } else {
-                button.innerHTML = originalButtonText; // restaurar texto original em caso de falha
-             }
+            if (button.disabled) {
+                // Manter o texto e estado de sucesso
+            } else {
+                button.innerHTML = originalButtonText; // restaurar texto original em caso de falha de rede
+            }
         }
     }
 
@@ -480,18 +488,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const name = registerForm.name.value;
+            const name = registerForm.name.value.trim(); // .trim() remove espaços em branco
             const email = registerForm.email.value;
             const password = registerForm.password.value;
+            const confirmPassword = registerForm['password-confirm'].value;
             const errorEl = document.getElementById('register-error');
             errorEl.textContent = '';
 
+            if (password !== confirmPassword) {
+                errorEl.textContent = 'As senhas não coincidem. Tente novamente.';
+                return;
+            }
+
+            if (!name) {
+                errorEl.textContent = 'Por favor, preencha o campo de nome.';
+                return;
+            }
+
             try {
+                // Passo 1: Cria o usuário
                 const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-                if (name) {
-                    await userCredential.user.updateProfile({ displayName: name });
-                }
+                const user = userCredential.user;
+
+                // Passo 2: Adiciona o nome E ESPERA a operação terminar
+                await user.updateProfile({
+                    displayName: name
+                });
+
+                // Passo 3: AGORA SIM, com o nome já salvo, navega para o catálogo
                 location.hash = '#/catalogo';
+                
             } catch (error) {
                 errorEl.textContent = getFirebaseErrorMessage(error);
             }
@@ -512,6 +538,27 @@ document.addEventListener('DOMContentLoaded', () => {
         logoutButton.addEventListener('click', () => {
             firebase.auth().signOut();
             location.hash = '#/catalogo';
+        });
+        // Adicione este código dentro da função bindAuthForms()
+
+        const googleSignInButton = document.getElementById('google-signin-button');
+
+        googleSignInButton.addEventListener('click', () => {
+            // Cria um "provedor" de autenticação do Google
+            const provider = new firebase.auth.GoogleAuthProvider();
+
+            // Inicia o processo de login com uma janela pop-up
+            firebase.auth().signInWithPopup(provider)
+                .then((result) => {
+                    // Se o login for bem-sucedido, o onAuthStateChanged já vai
+                    // nos redirecionar, mas podemos forçar para garantir.
+                    location.hash = '#/catalogo';
+                }).catch((error) => {
+                    // Lida com erros (ex: usuário fechou o pop-up)
+                    console.error("Erro ao fazer login com Google:", error);
+                    const errorEl = document.getElementById('login-error');
+                    errorEl.textContent = 'Não foi possível fazer login com o Google. Tente novamente.';
+                });
         });
     }
     
@@ -545,6 +592,60 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem(`reservations:${uid}`, JSON.stringify(reservations));
     }
 
+    function removeUserReservation(uid, itemId) {
+        const reservations = JSON.parse(localStorage.getItem(`reservations:${uid}`)) || {};
+        delete reservations[itemId];
+        localStorage.setItem(`reservations:${uid}`, JSON.stringify(reservations));
+    }
+
+    // Coloque esta função perto da função reserveItem
+    async function cancelReservation(event) {
+        if (!event.target.matches('.btn-cancel')) return;
+
+        if (!confirm('Você tem certeza que deseja cancelar esta reserva?')) {
+            return;
+        }
+
+        const button = event.target;
+        const itemId = button.dataset.id;
+        const item = PRODUCTS.find(p => p.id === itemId);
+
+        if (!item || !currentUser) return;
+        
+        setButtonLoading(button, true);
+
+        const payload = {
+            action: 'cancel',
+            itemId: item.id,
+            userUid: currentUser.uid
+        };
+
+        try {
+            await fetch(GAS_ENDPOINT, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(payload),
+                headers: { 'Content-Type': 'application/json' },
+                redirect: 'follow'
+            });
+
+            showToast('Reserva cancelada!', 'success');
+            removeUserReservation(currentUser.uid, item.id);
+            delete userReservations[item.id]; // Remove da memória também
+            
+            // Atualiza o botão sem recarregar a página
+            button.textContent = 'Reservar e ver na loja';
+            button.classList.remove('btn-secondary', 'btn-cancel');
+            button.classList.add('btn-primary', 'btn-reserve');
+
+        } catch (error) {
+            console.error('Erro ao cancelar reserva:', error);
+            showToast('Não foi possível cancelar a reserva. Tente novamente.', 'error');
+        } finally {
+            setButtonLoading(button, false);
+        }
+    }
+
     // ==========================================================================
     // Helpers de UI
     // ==========================================================================
@@ -572,12 +673,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================================================
     // Inicialização
     // ==========================================================================
-    function initApp() {
+    async function initApp() {
+        await fetchAllReservations(); // <-- ESPERA a lista de reservados carregar
         initFirebase();
         initRouter();
         renderCoupons();
         bindAuthForms();
-        productGrid.addEventListener('click', reserveItem);
+        productGrid.addEventListener('click', (event) => {
+            if (event.target.matches('.btn-reserve')) {
+                reserveItem(event);
+            } else if (event.target.matches('.btn-cancel')) {
+                cancelReservation(event);
+            }
+        });
     }
     
     initApp();
