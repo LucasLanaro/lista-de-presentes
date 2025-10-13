@@ -104,7 +104,7 @@ h2 {
 }
 
 .logo img {
-    height: 30px; /* <-- AJUSTE ESTE VALOR para o tamanho desejado */
+    height: 70px; /* <-- AJUSTE ESTE VALOR para o tamanho desejado */
     width: auto;  /* Mantém a proporção correta da imagem */
     display: block; /* Ajuda a remover espaços indesejados abaixo da imagem */
 }
