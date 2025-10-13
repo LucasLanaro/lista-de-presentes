@@ -278,6 +278,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     const toastElement = document.getElementById('toast');
+    const hamburgerButton = document.getElementById('hamburger-button');
+    const mainNavList = document.getElementById('main-nav-list');
 
     let currentUser = null;
     let userReservations = {};
@@ -686,7 +688,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 cancelReservation(event);
             }
         });
-    }
+         hamburgerButton.addEventListener('click', () => {
+            mainNavList.classList.toggle('nav-open');
+        });
+
+        // Bônus: Fecha o menu quando um link é clicado (bom para SPAs)
+        mainNavList.addEventListener('click', (event) => {
+            if (event.target.matches('.nav-link')) {
+                mainNavList.classList.remove('nav-open');
+            }
+        });
+        }
     
     initApp();
 });

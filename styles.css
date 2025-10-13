@@ -467,3 +467,39 @@ h2 {
     background-color: var(--color-secondary);
     color: #fff;
 }
+
+.hamburger-button {
+    display: none; /* Escondido por padrão em telas grandes */
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    z-index: 1010; /* Para ficar acima do menu */
+}
+
+/* @media query: Estas regras SÓ se aplicam em telas com 768px de largura ou menos */
+@media (max-width: 768px) {
+    .hamburger-button {
+        display: block; /* Mostra o botão em telas pequenas */
+    }
+
+    .main-nav ul {
+        display: none; /* Esconde a lista de links */
+        position: absolute;
+        top: 70px; /* Posição abaixo do cabeçalho */
+        left: 0;
+        right: 0;
+        width: 100%;
+        background-color: var(--color-background);
+        flex-direction: column; /* Organiza os links em coluna */
+        align-items: center;
+        padding: 1rem 0;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        gap: 1.5rem; /* Aumenta o espaçamento vertical */
+    }
+
+    /* Classe que o JavaScript vai adicionar para mostrar o menu */
+    .main-nav ul.nav-open {
+        display: flex;
+    }
+}
