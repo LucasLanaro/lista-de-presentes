@@ -479,6 +479,11 @@ h2 {
 
 /* @media query: Estas regras SÓ se aplicam em telas com 768px de largura ou menos */
 @media (max-width: 768px) {
+    /* Adicione esta regra para corrigir o alinhamento */
+    .site-header .container .logo {
+        margin-right: auto; /* Empurra os outros itens para a direita */
+    }
+    
     .hamburger-button {
         display: block; /* Mostra o botão em telas pequenas */
     }
