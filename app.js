@@ -253,6 +253,11 @@ document.addEventListener('DOMContentLoaded', () => {
             description: 'Descontos especiais em uma variedade de produtos eletrônicos e gerais.'
         },
         {
+            title: 'SÓ PROMOS ORIGINAIS',
+            url: 'https://linktr.ee/sopromosoriginais',
+            description: 'Descontos especiais em roupas e produtos eletrônicos ORIGINAIS.'
+        },
+        {
             title: 'Grupo de Ofertas - Talk PC',
             url: 'https://chat.whatsapp.com/LmuhlSfuzkTIe49YhZjkXe',
             description: 'Descontos especiais em uma variedade de produtos eletrônicos e de computadores.'
@@ -734,23 +739,35 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // 3. NOVO: Sincroniza o localStorage com a lista oficial
-        // Isso é executado DEPOIS que o usuário é identificado pelo onAuthStateChanged
+        // --- CÓDIGO FALTANTE ADICIONADO AQUI ---
+        // Adiciona a funcionalidade de clique ao botão hambúrguer
+        hamburgerButton.addEventListener('click', () => {
+            mainNavList.classList.toggle('nav-open');
+        });
+
+        // Bônus: Fecha o menu quando um link é clicado (útil para SPAs)
+        mainNavList.addEventListener('click', (event) => {
+            if (event.target.matches('a')) {
+                mainNavList.classList.remove('nav-open');
+            }
+        });
+        // --- FIM DO BLOCO ADICIONADO ---
+
+        // 3. Sincroniza o localStorage com a lista oficial
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
-                // Pega a lista de reservas locais do usuário
+                // ... (o resto da sua função de sincronização, que está correta)
                 const localUserReservations = Object.keys(userReservations);
 
                 if (localUserReservations.length > 0) {
                     const reservedItemId = localUserReservations[0];
                     
-                    // Se o item que está no localStorage NÃO está na lista oficial, é uma reserva fantasma
                     if (!allReservedItems.has(reservedItemId)) {
                         console.log("Sincronização: Removendo reserva fantasma do localStorage.");
-                        removeUserReservation(user.uid, reservedItemId); // Remove do localStorage
-                        delete userReservations[reservedItemId]; // Remove da memória
+                        removeUserReservation(user.uid, reservedItemId);
+                        delete userReservations[reservedItemId];
                         
-                        renderCatalog(); // Re-renderiza o catálogo para refletir a correção
+                        renderCatalog();
                     }
                 }
             }
