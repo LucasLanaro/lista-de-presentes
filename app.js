@@ -284,6 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentUser = null;
     let userReservations = {};
     let allReservedItems = new Set();
+    let itemPendingConfirmation = null;
 
     // ==========================================================================
     // Roteamento (SPA)
@@ -321,9 +322,15 @@ document.addEventListener('DOMContentLoaded', () => {
         PRODUCTS.forEach(product => {
             const isReservedByCurrentUser = userReservations[product.id];
             const isReservedByAnother = !isReservedByCurrentUser && allReservedItems.has(product.id);
+            const isPendingConfirmation = itemPendingConfirmation === product.id;
 
             const card = document.createElement('div');
             card.className = 'product-card';
+            // A classe 'pending-confirmation' ajudará no estilo se precisarmos
+            if (isPendingConfirmation) {
+                card.classList.add('pending-confirmation');
+            }
+            
             card.innerHTML = `
                 <img src="${product.image}" alt="${product.name}" class="product-card__image">
                 <div class="product-card__content">
@@ -333,7 +340,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${isReservedByCurrentUser
                             ? `<button class="btn btn-secondary btn-cancel" data-id="${product.id}">Cancelar Reserva</button>`
                         : isReservedByAnother
-                            ? `<button class="btn btn-primary" data-id="${product.id}" disabled>Reservado por outra pessoa</button>`
+                            ? `<button class="btn btn-primary" data-id="${product.id}" disabled>Reservado</button>`
+                        : isPendingConfirmation
+                            ? `<div>
+                                <button class="btn btn-success btn-confirm-reserve" data-id="${product.id}">Confirmar Reserva</button>
+                                <a href="#" class="link-cancel-confirm" data-id="${product.id}">Cancelar</a>
+                            </div>`
                         : `<button class="btn btn-primary btn-reserve" data-id="${product.id}">Reservar e ver na loja</button>`
                         }
                     </div>
@@ -374,41 +386,51 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================================================
     // Lógica de Reserva
     // ==========================================================================
-    function reserveItem(event) {
-        if (!event.target.matches('.btn-reserve')) return;
-
+    function startReservationProcess(event) {
         if (!currentUser) {
             showToast('Você precisa entrar para reservar um item.', 'error');
             location.hash = '#/login';
             return;
         }
 
+        // --- NOVA VERIFICAÇÃO ADICIONADA AQUI ---
+        // Verifica se a lista de reservas do usuário já tem algum item.
+        const userReservedItems = Object.keys(userReservations);
+
+        if (userReservedItems.length > 0) {
+            // Se já tiver uma reserva, encontramos o nome do item.
+            const reservedItemId = userReservedItems[0]; // Pega o ID do primeiro (e único) item reservado
+            const reservedItem = PRODUCTS.find(p => p.id === reservedItemId);
+            const reservedItemName = reservedItem ? reservedItem.name : "um item"; // Pega o nome ou usa um texto genérico
+
+            // Mostra a mensagem de erro personalizada e para a execução.
+            showToast(`Você já reservou "${reservedItemName}". Cancele sua reserva anterior para escolher outro item.`, 'error');
+            return;
+        }
+        // --- FIM DA NOVA VERIFICAÇÃO ---
+
+        const itemId = event.target.dataset.id;
+        const item = PRODUCTS.find(p => p.id === itemId);
+        if (!item) return;
+
+        const newTab = window.open(item.buyUrl, '_blank');
+        if (!newTab || newTab.closed || typeof newTab.closed == 'undefined') {
+            alert('Seu navegador bloqueou a abertura da nova aba. Por favor, desative o bloqueador de pop-ups para este site e tente novamente.');
+            return;
+        }
+        
+        itemPendingConfirmation = itemId;
+        renderCatalog();
+    }
+
+    // 2. Efetivamente registra a reserva QUANDO o usuário clica em "Confirmar"
+    async function confirmReservation(event) {
         const button = event.target;
         const itemId = button.dataset.id;
         const item = PRODUCTS.find(p => p.id === itemId);
 
-        if (!item) return;
-
-        // --- MUDANÇA ESTRUTURAL CRÍTICA ---
-        // 1. ABRIR A ABA DE FORMA 100% SÍNCRONA
-        const newTab = window.open('', '_blank');
+        if (!item || !currentUser) return;
         
-        // 1a. Verifica se o pop-up foi bloqueado
-        if (!newTab || newTab.closed || typeof newTab.closed == 'undefined') {
-            alert('Seu navegador bloqueou a abertura da nova aba.\n\nPor favor, desative o bloqueador de pop-ups para este site e tente novamente.');
-            return; // Para a execução
-        }
-        
-        newTab.document.write('Aguarde um momento, estamos registrando sua reserva...');
-
-        // 2. CHAMA UMA NOVA FUNÇÃO ASYNC PARA FAZER O TRABALHO PESADO
-        // Passamos os dados necessários para ela continuar o processo.
-        processReservation(item, button, newTab);
-    }
-
-    // ESTA É A NOVA FUNÇÃO QUE FAZ O TRABALHO ASSÍNCRONO
-    async function processReservation(item, button, newTab) {
-        const originalButtonText = button.innerHTML;
         setButtonLoading(button, true);
 
         const payload = {
@@ -430,32 +452,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(payload),
                 redirect: 'follow'
             });
-
-            // Se a reserva deu certo, atualiza a página original...
+            
             showToast('Presente reservado com sucesso!', 'success');
+            
+            allReservedItems.add(item.id); 
             saveUserReservation(currentUser.uid, item.id);
             userReservations[item.id] = true;
-            button.textContent = 'Reservado por você';
-            button.disabled = true;
-
-            // ...e redireciona a aba que já estava aberta.
-            newTab.location.href = item.buyUrl;
-
-        } catch (error) {
-            // Se deu erro, avisa o usuário na página original...
-            console.error('Erro ao reservar:', error);
-            showToast('Erro ao registrar a reserva. Tente novamente.', 'error');
             
-            // ...e fecha a aba em branco que foi aberta.
-            newTab.close();
+        } catch (error) {
+            console.error("Erro ao confirmar reserva:", error);
+            showToast('Erro ao registrar a reserva. Tente novamente.', 'error');
         } finally {
-            setButtonLoading(button, false, 'Reservado por você');
-            if (!button.disabled) {
-                button.innerHTML = originalButtonText;
-            }
+            itemPendingConfirmation = null; 
+            renderCatalog();
         }
     }
 
+    // 3. Cancela o MODO de confirmação na tela
+    function cancelConfirmation(event) {
+        event.preventDefault();
+        itemPendingConfirmation = null;
+        renderCatalog();
+    }
     // ==========================================================================
     // Autenticação com Firebase
     // ==========================================================================
@@ -649,7 +667,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             showToast('Reserva cancelada!', 'success');
-            removeUserReservation(currentUser.uid, item.id);
+            allReservedItems.delete(item.id);
+            removeUserReservation(currentUser.uid, item.id);;
             delete userReservations[item.id]; // Remove da memória também
             
             // Atualiza o botão sem recarregar a página
@@ -662,6 +681,8 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast('Não foi possível cancelar a reserva. Tente novamente.', 'error');
         } finally {
             setButtonLoading(button, false);
+            itemPendingConfirmation = null; // Garante que limpamos qualquer estado pendente
+            renderCatalog(); // Re-renderiza a tela inteira
         }
     }
 
@@ -693,29 +714,48 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicialização
     // ==========================================================================
     async function initApp() {
-        await fetchAllReservations(); // <-- ESPERA a lista de reservados carregar
+        // 1. Busca a lista oficial de todos os itens reservados
+        await fetchAllReservations();
+
+        // 2. Inicia o Firebase para saber quem é o usuário logado
         initFirebase();
         initRouter();
         renderCoupons();
         bindAuthForms();
         productGrid.addEventListener('click', (event) => {
             if (event.target.matches('.btn-reserve')) {
-                reserveItem(event);
+                startReservationProcess(event);
+            } else if (event.target.matches('.btn-confirm-reserve')) {
+                confirmReservation(event);
+            } else if (event.target.matches('.link-cancel-confirm')) {
+                cancelConfirmation(event);
             } else if (event.target.matches('.btn-cancel')) {
                 cancelReservation(event);
             }
         });
-         hamburgerButton.addEventListener('click', () => {
-            mainNavList.classList.toggle('nav-open');
-        });
 
-        // Bônus: Fecha o menu quando um link é clicado (bom para SPAs)
-        mainNavList.addEventListener('click', (event) => {
-            if (event.target.matches('.nav-link')) {
-                mainNavList.classList.remove('nav-open');
+        // 3. NOVO: Sincroniza o localStorage com a lista oficial
+        // Isso é executado DEPOIS que o usuário é identificado pelo onAuthStateChanged
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                // Pega a lista de reservas locais do usuário
+                const localUserReservations = Object.keys(userReservations);
+
+                if (localUserReservations.length > 0) {
+                    const reservedItemId = localUserReservations[0];
+                    
+                    // Se o item que está no localStorage NÃO está na lista oficial, é uma reserva fantasma
+                    if (!allReservedItems.has(reservedItemId)) {
+                        console.log("Sincronização: Removendo reserva fantasma do localStorage.");
+                        removeUserReservation(user.uid, reservedItemId); // Remove do localStorage
+                        delete userReservations[reservedItemId]; // Remove da memória
+                        
+                        renderCatalog(); // Re-renderiza o catálogo para refletir a correção
+                    }
+                }
             }
         });
-        }
+    }
     
     initApp();
 });

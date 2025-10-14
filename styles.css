@@ -566,3 +566,25 @@ main.container {
 .product-card__content {
     text-align: center;
 }
+
+.btn-success {
+    background-color: var(--color-success);
+    border-color: var(--color-success);
+    color: #fff;
+}
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+/* Estilo para o link "Cancelar" ao lado da confirmação */
+.link-cancel-confirm {
+    display: block;
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--color-muted);
+    text-decoration: underline;
+}
+.link-cancel-confirm:hover {
+    color: var(--color-danger);
+}
