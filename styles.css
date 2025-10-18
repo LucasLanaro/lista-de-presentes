@@ -2,24 +2,31 @@
    1. CSS Variables & Reset
    ========================================================================== */
 :root {
-    --color-primary: #007bff;
-    --color-primary-hover: #0056b3;
-    --color-secondary: #6c757d;
-    --color-secondary-hover: #545b62;
-    --color-success: #28a745;
-    --color-danger: #dc3545;
-    --color-light: #f8f9fa;
-    --color-light-background: #f8f8f8;
-    --color-dark: #343a40;
-    --color-text: #212529;
-    --color-muted: #6c757d;
-    --color-background: #fff;
-    --color-border: #dee2e6;
+    /* ----- CORES DO CONVITE ----- */
+    --color-primary: #434816; /* Verde Escuro */
+    --color-primary-hover: #5a611c; /* Verde mais claro para hover */
+    --color-background-page-fallback: #b88451; /* Bege (fallback caso a imagem não carregue) */
+    --color-background-content: #ffffff; /* Branco */
+    --color-text: #434816; /* Verde Escuro */
+    --color-text-light: #ffffff; /* Branco */
+    --color-muted: #8a6c4a; /* Bege escuro */
+    --color-border: #d4b593; /* Bege claro */
 
+    /* ----- CORES DE FEEDBACK ----- */
+    --color-success: #28a745; 
+    --color-danger: #dc3545; 
+    
+    /* ----- CORES SECUNDÁRIAS ----- */
+    --color-secondary: #8a6c4a; 
+    --color-secondary-hover: #735939; 
+    --color-dark: #30340f; /* Verde bem escuro */
+    --color-light: #f7f3ed; /* Bege muito claro */
+
+    /* ----- FONTES E OUTRAS VARIÁVEIS ----- */
     --font-family-base: 'Lato', sans-serif;
     --font-family-headings: 'Montserrat', sans-serif;
     --font-size-base: 1rem;
-    --line-height-base: 1.5;
+    --line-height-base: 1.6;
     
     --spacing-unit: 1rem;
     --border-radius: 0.375rem;
@@ -35,14 +42,21 @@
 
 body {
     font-family: var(--font-family-base);
-    line-height: 1.6;
+    line-height: var(--line-height-base);
     color: var(--color-text);
-    background-color: #f4f7f9; /* Aplica o novo fundo suave */
     margin: 0;
     padding: 0;
-    min-height: 100vh; /* Garante que o body ocupa a altura total da tela */
-    display: flex; /* Para o footer ficar no final */
-    flex-direction: column; /* Para o footer ficar no final */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+
+    /* ----- IMAGEM DE FUNDO ----- */
+    background-image: url('img/bg.png'); /* Caminho relativo para sua imagem */
+    background-repeat: no-repeat; 
+    background-attachment: fixed;
+    background-size: cover; 
+    background-position: center center; 
+    background-color: var(--color-background-page-fallback); /* Fallback Bege */
 }
 
 /* ==========================================================================
@@ -57,10 +71,14 @@ body {
     padding-right: var(--spacing-unit);
 }
 
-main {
+main.container {
     flex-grow: 1;
-    padding-top: calc(var(--spacing-unit) * 2);
-    padding-bottom: calc(var(--spacing-unit) * 2);
+    background-color: var(--color-background-content); /* Fundo branco */
+    padding: 2rem; 
+    border-radius: var(--border-radius); 
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08); 
+    margin: 2rem auto; /* Centraliza verticalmente e adiciona margens */
+    max-width: 1200px; 
 }
 
 .hidden {
@@ -68,27 +86,41 @@ main {
 }
 
 .info-notice {
-    background-color: #e9ecef;
-    border-left: 4px solid var(--color-primary);
+    background-color: var(--color-light); 
+    border-left: 4px solid var(--color-primary); 
     padding: var(--spacing-unit);
     margin-bottom: calc(var(--spacing-unit) * 1.5);
     border-radius: var(--border-radius);
+    color: var(--color-dark); 
 }
 
 h2 {
-    font-size: clamp(1.5rem, 5vw, 2rem);
     font-family: var(--font-family-headings);
-    margin-bottom: var(--spacing-unit);
-    color: var(--color-dark);
+    color: var(--color-dark); 
+}
+
+main.container h2 {
+    font-size: clamp(1.8rem, 5vw, 2.5rem); 
+    margin-top: 0; 
+    margin-bottom: 0.5rem; 
+}
+
+a { /* Regra geral para links */
+    color: var(--color-primary);
+    text-decoration: none; /* Remove sublinhado padrão */
+}
+a:hover {
+    color: var(--color-primary-hover);
+    text-decoration: underline; /* Adiciona sublinhado no hover */
 }
 
 /* ==========================================================================
    3. Header & Navigation
    ========================================================================== */
 .site-header {
-    border-bottom: 1px solid var(--color-border);
-    background-color: var(--color-background);
-    padding: var(--spacing-unit) 0;
+    border-bottom: 1px solid var(--color-border); 
+    background-color: var(--color-background-content); /* Fundo branco */
+    padding: 0.8rem 0; 
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     position: sticky;
     top: 0;
@@ -101,67 +133,43 @@ h2 {
     align-items: center;
 }
 
-.logo {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--color-primary);
-    text-decoration: none;
-}
-
 .logo img {
-    height: 70px; /* <-- AJUSTE ESTE VALOR para o tamanho desejado */
-    width: auto;  /* Mantém a proporção correta da imagem */
-    display: block; /* Ajuda a remover espaços indesejados abaixo da imagem */
-}
-
-.catalog-intro {
-    font-size: 1.1rem; /* Aumenta um pouco o texto de introdução */
-    color: var(--color-muted); /* Deixa um pouco mais suave */
-    margin-bottom: 3rem; /* Aumenta BASTANTE o espaço antes dos produtos */
-}
-
-main.container h2 {
-    font-size: clamp(1.8rem, 5vw, 2.5rem); /* Aumenta o tamanho do título */
-    margin-top: 2rem; /* Adiciona mais espaço acima dele */
-    margin-bottom: 0.5rem; /* Diminui o espaço abaixo (para aproximar do parágrafo) */
-}
-
-main.container {
-    max-width: var(--container-max-width);
-    margin: 0 auto;
-    padding: var(--spacing-unit) 1rem;
-    flex-grow: 1; /* Garante que o main ocupe o espaço restante */
-    background-color: #ffffff; /* Fundo branco para o nosso "cartão" */
-    padding: 2rem; /* Espaçamento interno */
-    border-radius: var(--border-radius); /* Bordas arredondadas */
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08); /* Sombra suave para o efeito de "flutuar" */
-    margin-top: 2rem;
-    margin-bottom: 2rem;
+    height: 50px; 
+    width: auto;  
+    display: block; 
 }
 
 .main-nav ul {
     list-style: none;
     display: flex;
     align-items: center;
-    gap: var(--spacing-unit);
+    gap: 0.5rem; /* Menor espaçamento entre links */
 }
 
-.nav-link {
+.main-nav ul li a {
+    color: var(--color-text); 
     text-decoration: none;
-    color: var(--color-muted);
+    padding: 0.5rem 0.8rem;
+    border-radius: var(--border-radius); 
+    transition: background-color 0.2s ease, color 0.2s ease;
     font-weight: 500;
-    padding: 0.5rem;
-    border-bottom: 2px solid transparent;
-    transition: color var(--transition-speed) ease, border-color var(--transition-speed) ease;
 }
 
-.nav-link:hover, .nav-link:focus {
-    color: var(--color-primary);
+.main-nav ul li a:hover,
+.main-nav ul li a.active { 
+    background-color: var(--color-primary); 
+    color: var(--color-text-light); 
+    text-decoration: none; /* Remove sublinhado no hover/ativo */
 }
 
-.nav-link.active {
-    color: var(--color-primary);
-    border-bottom-color: var(--color-primary);
+#auth-link-container a, #user-info-container span#user-email {
+    color: var(--color-primary); 
+    font-weight: 700;
+    background-color: transparent !important; 
+}
+#auth-link-container a:hover {
+    color: var(--color-primary-hover); 
+    text-decoration: underline;
 }
 
 #user-info-container {
@@ -172,7 +180,7 @@ main.container {
 
 #user-email {
     font-size: 0.9rem;
-    color: var(--color-muted);
+    color: var(--color-muted); 
 }
 
 /* ==========================================================================
@@ -184,7 +192,7 @@ main.container {
     justify-content: center;
     gap: 0.5rem;
     padding: 0.85rem 1.5rem;
-    font-size: var(--font-size-base);
+    font-size: 0.9rem; /* Levemente menor */
     font-weight: 700;
     text-align: center;
     border: 1px solid transparent;
@@ -194,7 +202,7 @@ main.container {
     text-decoration: none;
     line-height: 1;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px; /* Mais espaçado */
 }
 
 .btn:disabled {
@@ -203,31 +211,56 @@ main.container {
 }
 
 .btn-primary {
-    color: #fff;
-    background-color: var(--color-primary);
-    border-color: var(--color-primary);
+    color: var(--color-text-light); 
+    background-color: var(--color-primary); 
+    border-color: var(--color-primary); 
 }
 
 .btn-primary:not(:disabled):hover {
-    background-color: var(--color-primary-hover);
-    border-color: var(--color-primary-hover);
-    transform: scale(1.05)
+    background-color: var(--color-primary-hover); 
+    border-color: var(--color-primary-hover); 
+    transform: scale(1.05);
 }
 
 .btn-secondary {
-    color: #fff;
-    background-color: var(--color-secondary);
-    border-color: var(--color-secondary);
+    color: var(--color-text-light); 
+    background-color: var(--color-secondary); 
+    border-color: var(--color-secondary); 
 }
 
 .btn-secondary:not(:disabled):hover {
-    background-color: var(--color-secondary-hover);
+    background-color: var(--color-secondary-hover); 
     border-color: var(--color-secondary-hover);
+}
+
+.btn-success {
+    background-color: var(--color-success);
+    border-color: var(--color-success);
+    color: #fff;
+}
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
 }
 
 /* ==========================================================================
    5. Product Catalog
    ========================================================================== */
+.catalog-header {
+    padding: 0 1rem; /* Removido padding superior pois o main.container já tem */
+    margin-bottom: 3rem;
+    text-align: center; 
+}
+
+.catalog-intro {
+    font-size: 1.1rem; 
+    color: var(--color-muted); 
+    margin-bottom: 3rem; 
+    max-width: 600px; /* Limita a largura do texto intro */
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -235,8 +268,8 @@ main.container {
 }
 
 .product-card {
-    background-color: var(--color-background);
-    border: 1px solid var(--color-border);
+    background-color: var(--color-background-content); 
+    border: 1px solid var(--color-border); 
     border-radius: var(--border-radius);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     overflow: hidden;
@@ -246,8 +279,8 @@ main.container {
 }
 
 .product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-8px); 
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12); 
 }
 
 .product-card__image {
@@ -261,6 +294,7 @@ main.container {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+    text-align: center; 
 }
 
 .product-card__title {
@@ -268,9 +302,9 @@ main.container {
     font-family: var(--font-family-headings);
     font-weight: 700;
     line-height: 1.4;
-    min-height: 4.5rem;
+    min-height: calc(1.4em * 3); /* Ajuste dinâmico para 3 linhas */
     margin-bottom: 0.5rem;
-    color: var(--color-dark);
+    color: var(--color-dark); 
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
@@ -280,19 +314,18 @@ main.container {
 
 .product-card__description {
     font-size: 0.9rem;
-    color: var(--color-muted);
+    color: var(--color-muted); 
     margin-bottom: 1.5rem;
     flex-grow: 1;
 }
 
 .product-card__actions {
-    display: flex;
-    gap: 0.5rem;
+    display: block; 
     margin-top: auto;
 }
 
 .product-card__actions .btn {
-    flex: 1;
+   width: 100%; 
 }
 
 /* ==========================================================================
@@ -304,23 +337,21 @@ main.container {
     gap: var(--spacing-unit);
 }
 .coupon-item {
-    background-color: var(--color-background);
+    background-color: var(--color-background-content); 
     padding: var(--spacing-unit);
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-border); 
     border-radius: var(--border-radius);
 }
 .coupon-item a {
     font-size: 1.2rem;
     font-weight: 700;
-    color: var(--color-primary);
+    color: var(--color-primary); 
     text-decoration: none;
 }
-.coupon-item a:hover {
-    text-decoration: underline;
-}
+/* coupon-item a:hover já coberto pela regra geral de 'a:hover' */
 .coupon-item p {
     margin-top: 0.5rem;
-    color: var(--color-muted);
+    color: var(--color-muted); 
 }
 
 /* ==========================================================================
@@ -330,7 +361,7 @@ main.container {
     max-width: 450px;
     margin: 0 auto;
     padding: calc(var(--spacing-unit) * 2);
-    background-color: var(--color-background);
+    background-color: var(--color-background-content); 
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
 }
@@ -338,6 +369,7 @@ main.container {
 .auth-form h2 {
     text-align: center;
     margin-bottom: 1.5rem;
+    color: var(--color-dark); 
 }
 
 .form-group {
@@ -348,21 +380,22 @@ main.container {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
+    color: var(--color-text); 
 }
 
 .form-group input {
     width: 100%;
     padding: 0.75rem;
     font-size: 1rem;
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-border); 
     border-radius: var(--border-radius);
     transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
 }
 
 .form-group input:focus {
     outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    border-color: var(--color-primary); 
+    box-shadow: 0 0 0 3px rgba(67, 72, 22, 0.25); 
 }
 
 .auth-form .btn {
@@ -373,20 +406,12 @@ main.container {
     margin-top: 1.5rem;
     text-align: center;
     font-size: 0.9rem;
+    color: var(--color-muted); 
 }
-
-.auth-toggle a {
-    color: var(--color-primary);
-    font-weight: 500;
-    text-decoration: none;
-}
-
-.auth-toggle a:hover {
-    text-decoration: underline;
-}
+/* auth-toggle a já coberto pela regra geral de 'a' */
 
 .error-message {
-    color: var(--color-danger);
+    color: var(--color-danger); 
     font-size: 0.9rem;
     margin-bottom: 1rem;
     text-align: center;
@@ -409,17 +434,9 @@ main.container {
     z-index: 2000;
 }
 
-#toast.show {
-    transform: translate(-50%, 0);
-}
-
-#toast.success {
-    background-color: var(--color-success);
-}
-
-#toast.error {
-    background-color: var(--color-danger);
-}
+#toast.show { transform: translate(-50%, 0); }
+#toast.success { background-color: var(--color-success); }
+#toast.error { background-color: var(--color-danger); }
 
 /* ==========================================================================
    9. Spinner
@@ -432,159 +449,110 @@ main.container {
     border-radius: 50%;
     animation: spin 0.75s linear infinite;
 }
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ==========================================================================
    10. Footer
    ========================================================================== */
 .site-footer {
-    background-color: var(--color-light);
-    color: var(--color-muted);
-    padding: 3rem 0;
+    background-color: var(--color-light); 
+    color: var(--color-muted); 
+    padding: 2rem 0; /* Um pouco menos de padding */
     text-align: center;
-    margin-top: 4rem;
-    border-top: 1px solid var(--color-border);
+    margin-top: 2rem; /* Coordenado com margin-bottom do main */
+    border-top: 1px solid var(--color-border); 
 }
 
 .site-footer p {
     margin: 0;
-    font-size: 1rem;
+    font-size: 0.9rem; /* Levemente menor */
 }
 
-.catalog-intro {
-    margin-bottom: 2rem; /* Isso adiciona um espaço abaixo do parágrafo */
-}
-
-/* Estilos para o botão Google e o separador */
-
+/* ==========================================================================
+   11. Botão Google e Separador
+   ========================================================================== */
 .separator {
     display: flex;
     align-items: center;
     text-align: center;
-    color: var(--color-muted);
+    color: var(--color-muted); 
     margin: 1.5rem 0;
 }
-
 .separator::before,
 .separator::after {
     content: '';
     flex: 1;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border); 
 }
-
-.separator:not(:empty)::before {
-    margin-right: 0.5em;
-}
-
-.separator:not(:empty)::after {
-    margin-left: 0.5em;
-}
+.separator:not(:empty)::before { margin-right: 0.5em; }
+.separator:not(:empty)::after { margin-left: 0.5em; }
 
 .btn-google {
     background-color: #fff;
-    color: var(--color-dark);
-    border-color: var(--color-border);
+    color: var(--color-dark); 
+    border-color: var(--color-border); 
     width: 100%;
     font-weight: 500;
+    text-transform: none; /* Mantém capitalização normal */
+    letter-spacing: normal; /* Espaçamento normal */
 }
+.btn-google:hover { background-color: var(--color-light); }
+.btn-google svg { margin-right: 0.5rem; }
 
-.btn-google:hover {
-    background-color: var(--color-light);
-}
-
-.btn-google svg {
-    margin-right: 0.5rem;
-}
-
-/* Estilo para o botão de cancelar reserva */
+/* ==========================================================================
+   12. Botão Cancelar Reserva e Confirmação
+   ========================================================================== */
 .btn-cancel {
     background-color: transparent;
-    color: var(--color-secondary);
-    border: 1px solid var(--color-secondary);
+    color: var(--color-secondary); 
+    border: 1px solid var(--color-secondary); 
 }
-
 .btn-cancel:hover {
-    background-color: var(--color-secondary);
+    background-color: var(--color-secondary); 
     color: #fff;
 }
 
-.hamburger-button {
-    display: none; /* Escondido por padrão em telas grandes */
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.5rem;
-    z-index: 1010; /* Para ficar acima do menu */
-}
-
-/* @media query: Estas regras SÓ se aplicam em telas com 768px de largura ou menos */
-@media (max-width: 768px) {
-    /* Adicione esta regra para corrigir o alinhamento */
-    .site-header .container .logo {
-        margin-right: auto; /* Empurra os outros itens para a direita */
-    }
-    
-    .hamburger-button {
-        display: block; /* Mostra o botão em telas pequenas */
-    }
-
-    .main-nav ul {
-        display: none; /* Esconde a lista de links */
-        position: absolute;
-        top: 70px; /* Posição abaixo do cabeçalho */
-        left: 0;
-        right: 0;
-        width: 100%;
-        background-color: var(--color-background);
-        flex-direction: column; /* Organiza os links em coluna */
-        align-items: center;
-        padding: 1rem 0;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        gap: 1.5rem; /* Aumenta o espaçamento vertical */
-    }
-
-    /* Classe que o JavaScript vai adicionar para mostrar o menu */
-    .main-nav ul.nav-open {
-        display: flex;
-    }
-}
-
-#view-catalogo {
-    text-align: center;
-}
-
-.catalog-header {
-    /* Mantém o espaçamento vertical para um bom respiro */
-    padding: 2rem 1rem 0 1rem; 
-    margin-bottom: 3rem;
-    text-align: center; /* Garante que continue centralizado */
-}
-
-.product-card__content {
-    text-align: center;
-}
-
-.btn-success {
-    background-color: var(--color-success);
-    border-color: var(--color-success);
-    color: #fff;
-}
-.btn-success:hover {
-    background-color: #218838;
-    border-color: #1e7e34;
-}
-
-/* Estilo para o link "Cancelar" ao lado da confirmação */
 .link-cancel-confirm {
     display: block;
     margin-top: 0.75rem;
     font-size: 0.9rem;
-    color: var(--color-muted);
+    color: var(--color-muted); 
     text-decoration: underline;
 }
 .link-cancel-confirm:hover {
-    color: var(--color-danger);
+    color: var(--color-danger); 
+}
+
+/* ==========================================================================
+   13. Menu Hambúrguer (Responsivo)
+   ========================================================================== */
+.hamburger-button {
+    display: none; 
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    z-index: 1010; 
+    color: var(--color-primary); 
+}
+
+@media (max-width: 768px) {
+    .site-header .container .logo { margin-right: auto; }
+    .hamburger-button { display: block; }
+
+    .main-nav ul {
+        display: none; 
+        position: absolute;
+        top: 60px; /* Ajuste se necessário */
+        left: 0;
+        right: 0;
+        width: 100%;
+        background-color: var(--color-background-content); 
+        flex-direction: column; 
+        align-items: center;
+        padding: 1rem 0;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        gap: 1.5rem; 
+    }
+    .main-nav ul.nav-open { display: flex; }
 }

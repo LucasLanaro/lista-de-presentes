@@ -146,6 +146,27 @@ document.addEventListener('DOMContentLoaded', () => {
             buyUrl: 'https://www.mercadolivre.com.br/jogo-2-potes-porta-frios-hermeticos-2x770-ml-paramount/p/MLB22447971?pdp_filters=item_id%3AMLB5331304602#origin=share&sid=share&wid=MLB5331304602&action=whatsapp'
         },
         {
+            id: 'jit-5-toalhas',
+            name: 'Kit 5 Toalhas De Rosto Rubi Clássica 100% Algodão',
+            description: '---',
+            image: 'img/kit-5-toalhas-rosto-algodao.webp.webp',
+            buyUrl: 'https://produto.mercadolivre.com.br/MLB-3327110631#origin=share&sid=share&action=whatsapp'
+        },
+        {
+            id: 'organizador-pia',
+            name: 'Organizador Pia - Detergente Esponja Suporte Cozinha Em Metal',
+            description: '---',
+            image: 'img/Pia Organizador Detergente Esponja Suporte Cozinha Em Metal.webp',
+            buyUrl: 'https://produto.mercadolivre.com.br/MLB-4045982519#origin=share&sid=share&action=whatsapp'
+        },
+        {
+            id: 'comeia-organizadora',
+            name: 'Kit 10 Colmeia Organizadora gaveta organizador porta calcinhas meia cuecas M roupas bebe Stobaza',
+            description: '---',
+            image: 'img/Kit 10 Colmeia Organizadora gaveta organizador porta calcinhas meia cuecas M roupas bebe Stobaza.webp',
+            buyUrl: 'https://www.mercadolivre.com.br/p/MLB45445622?pdp_filters=item_id:MLB5496634858#origin=share&sid=share&wid=MLB5496634858&action=whatsapp'
+        },
+        {
             id: 'caneca-chop',
             name: 'Caneca De Chopp Em Vidro Kit 6 Copos Com Alça Para Cerveja Cor Branco',
             description: '---',
