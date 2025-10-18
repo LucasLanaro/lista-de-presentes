@@ -412,42 +412,62 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================================================
     // Lógica de Reserva
     // ==========================================================================
-    function startReservationProcess(event) {
-        if (!currentUser) {
-            showToast('Você precisa entrar para reservar um item.', 'error');
-            location.hash = '#/login';
-            return;
-        }
+// Função corrigida para iniciar o processo de reserva
+function startReservationProcess(event) {
+    if (!currentUser) {
+        showToast('Você precisa entrar para reservar um item.', 'error');
+        location.hash = '#/login';
+        return;
+    }
 
-        // --- NOVA VERIFICAÇÃO ADICIONADA AQUI ---
-        // Verifica se a lista de reservas do usuário já tem algum item.
-        const userReservedItems = Object.keys(userReservations);
+    // Verifica se o usuário já tem uma reserva ativa
+    const userReservedItems = Object.keys(userReservations);
+    if (userReservedItems.length > 0) {
+        const reservedItemId = userReservedItems[0]; 
+        const reservedItem = PRODUCTS.find(p => p.id === reservedItemId);
+        const reservedItemName = reservedItem ? reservedItem.name : "um item";
+        showToast(`Você já reservou "${reservedItemName}". Cancele sua reserva anterior para escolher outro item.`, 'error');
+        return;
+    }
 
-        if (userReservedItems.length > 0) {
-            // Se já tiver uma reserva, encontramos o nome do item.
-            const reservedItemId = userReservedItems[0]; // Pega o ID do primeiro (e único) item reservado
-            const reservedItem = PRODUCTS.find(p => p.id === reservedItemId);
-            const reservedItemName = reservedItem ? reservedItem.name : "um item"; // Pega o nome ou usa um texto genérico
+    // Pega as informações do item clicado
+    const button = event.target; // Pega o botão clicado
+    const itemId = button.dataset.id;
+    const item = PRODUCTS.find(p => p.id === itemId);
+    if (!item) return;
 
-            // Mostra a mensagem de erro personalizada e para a execução.
-            showToast(`Você já reservou "${reservedItemName}". Cancele sua reserva anterior para escolher outro item.`, 'error');
-            return;
-        }
-        // --- FIM DA NOVA VERIFICAÇÃO ---
-
-        const itemId = event.target.dataset.id;
-        const item = PRODUCTS.find(p => p.id === itemId);
-        if (!item) return;
-
-        const newTab = window.open(item.buyUrl, '_blank');
-        if (!newTab || newTab.closed || typeof newTab.closed == 'undefined') {
-            alert('Seu navegador bloqueou a abertura da nova aba. Por favor, desative o bloqueador de pop-ups para este site e tente novamente.');
-            return;
-        }
+    // --- CORREÇÃO: SIMULAR CLIQUE EM LINK EM VEZ DE window.open ---
+    try {
+        // Cria um link temporário na memória
+        const tempLink = document.createElement('a');
+        tempLink.href = item.buyUrl;
+        tempLink.target = '_blank';
+        tempLink.rel = 'noopener noreferrer'; // Boas práticas de segurança
         
+        // Adiciona ao corpo (necessário para clique simulado em alguns mobiles)
+        document.body.appendChild(tempLink); 
+        
+        // Simula o clique do usuário no link para abrir a nova aba
+        tempLink.click(); 
+        
+        // Remove o link temporário da página
+        document.body.removeChild(tempLink); 
+
+        // Independentemente se a aba abriu ou foi bloqueada silenciosamente,
+        // prosseguimos para o estado de confirmação.
         itemPendingConfirmation = itemId;
         renderCatalog();
+
+    } catch (err) {
+        // Captura erros inesperados na criação/clique do link (raro)
+        console.error("Erro ao tentar simular clique para abrir link:", err);
+        showToast("Ocorreu um erro ao tentar abrir o link da loja.", "error");
+        
+        // Mesmo em caso de erro, tentamos ir para o estado de confirmação
+        itemPendingConfirmation = itemId;
+        renderCatalog(); 
     }
+}
 
     // 2. Efetivamente registra a reserva QUANDO o usuário clica em "Confirmar"
     async function confirmReservation(event) {
